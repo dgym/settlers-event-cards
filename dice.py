@@ -1,6 +1,10 @@
 from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty
-from kivy.graphics import Ellipse, Line, Fbo, Rectangle
+from kivy.graphics import Ellipse, Line, Fbo, Rectangle, Color, Callback
+from kivy.graphics.opengl import (
+    glBlendFunc,
+    GL_ONE, GL_ZERO, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+)
 
 from shader import circle_vertex_shader, circle_fragment_shader
 
@@ -57,6 +61,9 @@ class DiceWidget(Widget):
 
         with self.canvas:
             # Draw the outline
+            Color(0.8, 0.1, 0.1)
+            Rectangle(pos=(x, y), size=(w, h))
+            Color(1, 1, 1)
             Line(rectangle=(x, y, w, h))
 
         # Update dots
@@ -106,7 +113,9 @@ class DiceWidget(Widget):
             dot_fbo['radius'] = max(size[0] * 0.5 - border, 0.0)
             dot_fbo['border'] = border
             with dot_fbo:
+                Callback(lambda *_args: glBlendFunc(GL_ONE, GL_ZERO))
                 Rectangle(size=size)
+                Callback(lambda *_args: glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA))
 
         return dot_fbo
 
